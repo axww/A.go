@@ -31,16 +31,12 @@ func Aid() []byte {
 	return res[:]
 }
 
-func Aid10(aid []byte) uint64 {
-	return binary.BigEndian.Uint64(aid)
+func Aid16(aid []byte) string {
+	return hex.EncodeToString(aid)
 }
 
 func Aid36(aid []byte) string {
-	return strconv.FormatUint(Aid10(aid), 36)
-}
-
-func Aid16(aid []byte) string {
-	return hex.EncodeToString(aid)
+	return strconv.FormatUint(binary.BigEndian.Uint64(aid), 36)
 }
 
 func AidDecoder(aid []byte) (uint64, uint32) {
@@ -49,9 +45,11 @@ func AidDecoder(aid []byte) (uint64, uint32) {
 	return timer, counter
 }
 
-func Aid10Decoder(aid10 uint64) (uint64, uint32) {
-	aid := make([]byte, 8)
-	binary.BigEndian.PutUint64(aid, aid10)
+func Aid16Decoder(aid16 string) (uint64, uint32) {
+	aid, err := hex.DecodeString(aid16)
+	if err != nil {
+		return 0, 0
+	}
 	return AidDecoder(aid)
 }
 
@@ -60,13 +58,7 @@ func Aid36Decoder(aid36 string) (uint64, uint32) {
 	if err != nil {
 		return 0, 0
 	}
-	return Aid10Decoder(aid10)
-}
-
-func Aid16Decoder(aid16 string) (uint64, uint32) {
-	aid, err := hex.DecodeString(aid16)
-	if err != nil {
-		return 0, 0
-	}
+	aid := make([]byte, 8)
+	binary.BigEndian.PutUint64(aid, aid10)
 	return AidDecoder(aid)
 }
